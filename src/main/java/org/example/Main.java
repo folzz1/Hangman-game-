@@ -1,17 +1,28 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.util.List;
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        // Создаем категории
+        Category animals = new Category("Животные");
+        Category fruits = new Category("Фрукты");
+        Category vegetables = new Category("Овощи");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        // Создаем слова
+        List<Word> words = List.of(
+                new Word("Кошка", animals, "Домашнее животное"),
+                new Word("Собака", animals, "Лучший друг человека"),
+                new Word("Яблоко", fruits, "Сочный фрукт"),
+                new Word("Банан", fruits, "Желтый фрукт"),
+                new Word("Морковь", vegetables, "Оранжевый овощ"),
+                new Word("Картофель", vegetables, "Основной продукт питания")
+        );
+
+        // Создаем список категорий
+        List<Category> categories = List.of(animals, fruits, vegetables);
+
+        // Создаем меню и запускаем его
+        Menu menu = new Menu(categories, words, System.out, System.in);
+        menu.displayMenu();
     }
 }
