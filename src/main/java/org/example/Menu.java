@@ -1,15 +1,16 @@
 package org.example;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.Setter;
 
+@SuppressWarnings("lombok")
 public class Menu {
+
     private static final int MIN_WORD_LENGTH = 3;
     private static final int MAX_DIFFICULTY = 3;
     private static final int MIN_DIFFICULTY = 1;
@@ -17,22 +18,21 @@ public class Menu {
     private final PrintStream out;
     private final InputStream in;
     private final List<Category> categories;
-    private final List<Word> words;
+    @Getter private final List<Word> words;
     private final Random random;
-    private int difficulty;
-    private Category selectedCategory;
-    private PlayGame playGame;
+    @Setter @Getter private int difficulty;
+    @Getter private Category selectedCategory;
+    private PlayGame game;
+    @Setter @Getter private UserInputHandler userInputHandler;
 
     public Menu(List<Category> categories, List<Word> words, PrintStream out, InputStream in) {
         this.out = out;
         this.in = in;
         this.categories = categories;
         this.random = new Random();
-        //this.difficulty = random.nextInt(MAX_DIFFICULTY) + MIN_DIFFICULTY;
         this.words = words;
-        //this.selectedCategory = categories.get(random.nextInt(categories.size()));
+        this.userInputHandler = new UserInputHandler(in, out);
 
-        // Проверка на пустые списки
         if (categories.isEmpty() || words.isEmpty()) {
             this.difficulty = 1;
             this.selectedCategory = null;
@@ -40,12 +40,9 @@ public class Menu {
             this.difficulty = random.nextInt(MAX_DIFFICULTY) + MIN_DIFFICULTY;
             this.selectedCategory = categories.get(random.nextInt(categories.size()));
         }
-
     }
 
-    public void displayMenu() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-
+    public void showMenu() {
         boolean startGame = false;
 
         if (categories.isEmpty() || words.isEmpty()) {
@@ -62,26 +59,20 @@ public class Menu {
             """);
 
             try {
-                String choice = reader.readLine();
+                String choice = userInputHandler.getUserInput();
                 if (choice == null) {
-                    out.println("Ошибка ввода. Пожалуйста, попробуйте снова.");
+                    userInputHandler.displayMessage("Ошибка ввода. Пожалуйста, попробуйте снова.");
                     continue;
                 }
                 switch (choice) {
-                    case "1":
-                        startGame = true;
-                        break;
-                    case "2":
-                        selectDifficulty(reader);
-                        break;
-                    case "3":
-                        selectCategory(reader);
-                        break;
-                    default:
-                        out.println("Неверный ввод. Пожалуйста, выберите снова.");
+                    case "1" -> startGame = true;
+                    case "2" -> selectDifficulty();
+                    case "3" -> selectCategory();
+                    default -> userInputHandler.displayMessage("Неверный ввод. Пожалуйста, выберите снова.");
                 }
             } catch (IOException e) {
-                out.println("Произошла ошибка при чтении ввода.");
+                out.println("Это очень длинное сообщение, которое нужно разбить на несколько строк, "
+                        + "чтобы оно соответствовало стандартам стиля кода.");
             }
         }
 
@@ -94,19 +85,18 @@ public class Menu {
             out.println("Не найдено подходящее слово. Игра завершена.");
         } else {
             if (difficulty != -1) {
-                this.playGame = new PlayGame(word, difficulty);
-                playGame.start(in);
+                this.game = new PlayGame(word, difficulty);
+                game.start(in);
             } else {
                 out.println("Не указана сложность. Игра завершена.");
             }
         }
-
     }
 
-    public void selectDifficulty(BufferedReader reader) throws IOException {
+    public void selectDifficulty() throws IOException {
         out.println("Выберите уровень сложности (1-легкий, 2-средний, 3-сложный) "
                 + "или нажмите Enter для случайного выбора:");
-        String difficultyInput = reader.readLine();
+        String difficultyInput = userInputHandler.getUserInput();
         try {
             difficulty = Integer.parseInt(difficultyInput);
             if (difficulty < MIN_DIFFICULTY || difficulty > MAX_DIFFICULTY) {
@@ -119,8 +109,9 @@ public class Menu {
         }
     }
 
-    public void selectCategory(BufferedReader reader) throws IOException {
-        while (true) {
+    public void selectCategory() throws IOException {
+        boolean validCategorySelected = false;
+        while (!validCategorySelected) {
             out.println("Выберите категорию из списка или нажмите Enter для случайного выбора:");
             for (int i = 0; i < categories.size(); i++) {
                 if (categories.get(i) != null
@@ -129,7 +120,7 @@ public class Menu {
                     out.println((i + 1) + ". " + categories.get(i).name());
                 }
             }
-            String categoryInput = reader.readLine();
+            String categoryInput = userInputHandler.getUserInput();
             if (categoryInput == null || categoryInput.isEmpty()) {
                 selectedCategory = categories.get(random.nextInt(categories.size()));
                 break;
@@ -141,7 +132,7 @@ public class Menu {
                             && categories.get(categoryIndex).name() != null
                             && !categories.get(categoryIndex).name().isEmpty()) {
                         selectedCategory = categories.get(categoryIndex);
-                        break;
+                        validCategorySelected = true;
                     } else {
                         out.println("Выбранная категория недоступна. Пожалуйста, выберите другую.");
                     }
@@ -154,7 +145,6 @@ public class Menu {
         }
     }
 
-
     public Word selectRandomWord(List<Word> words) {
         List<Word> filteredWords = words.stream()
                 .filter(word -> word != null
@@ -163,34 +153,15 @@ public class Menu {
                         && word.category() != null
                         && word.category().equals(selectedCategory)
                         && word.word().length() >= MIN_WORD_LENGTH)
-                .collect(Collectors.toList());
-
+                .toList();
         if (filteredWords.isEmpty()) {
             out.println("Нет доступных слов для выбранной категории. Игра завершена.");
             return null;
         }
-
         return filteredWords.get(random.nextInt(filteredWords.size()));
     }
 
-
-    public List<Word> getWords() {
-        return words;
-    }
-
-    public Category getSelectedCategory() {
-        return selectedCategory;
-    }
-
-    public int getDifficulty() {
-        return difficulty;
-    }
-
-    public void setDifficulty(int difficulty) {
-        this.difficulty = difficulty;
-    }
-
-    public void setPlayGame(PlayGame playGame) {
-        this.playGame = playGame;
+    public void setPlayGame(PlayGame game) {
+        this.game = game;
     }
 }

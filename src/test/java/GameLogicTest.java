@@ -40,7 +40,7 @@ public class GameLogicTest {
         gameLogic.setAttemptNumber(0);
         gameLogic.setMistakesNumber(0);
 
-        boolean result = gameLogic.check('т');
+        boolean result = gameLogic.checkLetter('т');
 
         assertThat(result).isTrue();
         assertThat(gameLogic.getCurrentResponse().toString()).isEqualTo("т__т");
@@ -56,7 +56,7 @@ public class GameLogicTest {
         gameLogic.setAttemptNumber(0);
         gameLogic.setMistakesNumber(0);
 
-        boolean result = gameLogic.check('а');
+        boolean result = gameLogic.checkLetter('а');
 
         assertThat(result).isFalse();
         assertThat(gameLogic.getMistakesNumber()).isEqualTo(1);
@@ -89,7 +89,7 @@ public class GameLogicTest {
         gameLogic.setAttemptNumber(1);
         gameLogic.setCurrentResponse(new StringBuilder("____"));
 
-        assertThat(gameLogic.isGameOver()).isTrue();
+        assertThat(gameLogic.isGameNotOver()).isTrue();
     }
 
     @Test
@@ -100,6 +100,6 @@ public class GameLogicTest {
         gameLogic.setAttemptNumber(5);
         gameLogic.setCurrentResponse(new StringBuilder("тест"));
 
-        assertThat(gameLogic.isGameOver()).isFalse();
+        assertThat(gameLogic.isGameNotOver()).isFalse();
     }
 }

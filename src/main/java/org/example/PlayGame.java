@@ -7,10 +7,15 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lombok.Getter;
+import lombok.Setter;
 
+@SuppressWarnings("lombok")
+@Setter
 public class PlayGame {
+
     private static final Logger LOGGER = Logger.getLogger(PlayGame.class.getName());
-    private GameLogic gameLogic;
+    @Getter private GameLogic gameLogic;
     private PrintStream out;
 
     public PlayGame(Word word, int difficulty) {
@@ -20,12 +25,12 @@ public class PlayGame {
 
     public void start(InputStream inputStream) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            while (gameLogic.isGameOver()) {
+            while (gameLogic.isGameNotOver()) {
                 gameLogic.drawMan();
                 out.print("Введите букву: ");
                 String input = reader.readLine();
                 if (input != null && !input.isEmpty()) {
-                    gameLogic.check(Character.toLowerCase(input.charAt(0)));
+                    gameLogic.checkLetter(Character.toLowerCase(input.charAt(0)));
                 }
             }
             if (gameLogic.isWin()) {
@@ -40,15 +45,5 @@ public class PlayGame {
         }
     }
 
-    public GameLogic getGameLogic() {
-        return gameLogic;
-    }
-
-    public void setGameLogic(GameLogic gameLogic) {
-        this.gameLogic = gameLogic;
-    }
-
-    public void setOut(PrintStream out) {
-        this.out = out;
-    }
 }
+

@@ -11,6 +11,6 @@ public class Main {
         List<Word> words = wordProvider.getWords();
 
         Menu menu = new Menu(categories, words, System.out, System.in);
-        menu.displayMenu();
+        menu.showMenu();
     }
 }

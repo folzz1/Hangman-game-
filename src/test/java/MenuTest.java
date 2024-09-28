@@ -1,10 +1,8 @@
 
-import org.example.Category;
-import org.example.Menu;
-import org.example.PlayGame;
-import org.example.Word;
+import org.example.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -23,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MenuTest {
     private PrintStream out;
@@ -149,13 +148,17 @@ public class MenuTest {
     @Test
     public void testSelectValidCategory() throws IOException {
         PrintStream out = mock(PrintStream.class);
-        InputStream input = new ByteArrayInputStream("1\n".getBytes());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        UserInputHandler userInputHandler = mock(UserInputHandler.class);
+
+        when(userInputHandler.getUserInput()).thenReturn("1");
+
         List<Category> categories = List.of(new Category("Фрукты"), new Category("Овощи"));
         List<Word> words = List.of(new Word("Яблоко", categories.get(0), "Описание яблока"));
-        Menu menu = new Menu(categories, words, out, input);
 
-        menu.selectCategory(reader);
+        Menu menu = new Menu(categories, words, out, System.in);
+        menu.setUserInputHandler(userInputHandler);
+
+        menu.selectCategory();
 
         assertThat(menu.getSelectedCategory()).isEqualTo(categories.get(0));
     }
@@ -169,7 +172,7 @@ public class MenuTest {
         List<Word> words = List.of(new Word("Яблоко", categories.get(0), "Описание яблока"));
         Menu menu = new Menu(categories, words, out, input);
 
-        menu.selectCategory(reader);
+        menu.selectCategory();
 
         assertThat(menu.getSelectedCategory()).isEqualTo(categories.get(0));
         verify(out).println("Неверный ввод. Пожалуйста, введите номер.");
@@ -184,7 +187,7 @@ public class MenuTest {
         List<Word> words = List.of(new Word("Морковь", categories.get(1), "Описание моркови"));
         Menu menu = new Menu(categories, words, out, input);
 
-        menu.selectCategory(reader);
+        menu.selectCategory();
 
         assertThat(menu.getSelectedCategory()).isEqualTo(categories.get(1));
     }
@@ -198,7 +201,7 @@ public class MenuTest {
         List<Word> words = List.of(new Word("Яблоко", categories.get(0), "Описание яблока"));
         Menu menu = new Menu(categories, words, out, input);
 
-        menu.selectCategory(reader);
+        menu.selectCategory();
 
         assertThat(menu.getSelectedCategory()).isIn(categories);
     }
@@ -213,7 +216,7 @@ public class MenuTest {
         List<Word> words = List.of(new Word("Яблоко", categories.get(0), "Описание яблока"));
         Menu menu = new Menu(categories, words, out, input);
 
-        menu.selectCategory(reader);
+        menu.selectCategory();
 
         assertThat(menu.getSelectedCategory()).isEqualTo(categories.get(0));
         verify(out).println("Неверный номер категории. Пожалуйста, попробуйте снова.");
@@ -231,7 +234,7 @@ public class MenuTest {
         List<Word> words = List.of(new Word("Яблоко", categories.get(0), "Описание яблока"));
         Menu menu = new Menu(categories, words, out, input);
 
-        menu.selectCategory(reader);
+        menu.selectCategory();
 
         assertThat(menu.getSelectedCategory()).isIn(categories);
     }
@@ -240,15 +243,13 @@ public class MenuTest {
     @Test
     public void testSelectValidDifficultyInput() throws IOException {
         PrintStream out = mock(PrintStream.class);
-        InputStream input = new ByteArrayInputStream("1\n".getBytes());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
+        UserInputHandler userInputHandler = mock(UserInputHandler.class);
+        when(userInputHandler.getUserInput()).thenReturn("1");
         List<Category> categories = Arrays.asList(new Category("Фрукты"));
         List<Word> words = Arrays.asList(new Word("Яблоко", categories.get(0), "Сочный фрукт"));
         Menu menu = new Menu(categories, words, out, System.in);
-
-        menu.selectDifficulty(reader);
-
+        menu.setUserInputHandler(userInputHandler);
+        menu.selectDifficulty();
         assertThat(menu.getDifficulty()).isEqualTo(1);
         verify(out).println("Выберите уровень сложности (1-легкий, 2-средний, 3-сложный) или нажмите Enter для случайного выбора:");
     }
@@ -256,15 +257,13 @@ public class MenuTest {
     @Test
     public void testSelectValidDifficultyInput2() throws IOException {
         PrintStream out = mock(PrintStream.class);
-        InputStream input = new ByteArrayInputStream("3\n".getBytes());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
+        UserInputHandler userInputHandler = mock(UserInputHandler.class);
+        when(userInputHandler.getUserInput()).thenReturn("3");
         List<Category> categories = Arrays.asList(new Category("Фрукты"));
         List<Word> words = Arrays.asList(new Word("Яблоко", categories.get(0), "Сочный фрукт"));
         Menu menu = new Menu(categories, words, out, System.in);
-
-        menu.selectDifficulty(reader);
-
+        menu.setUserInputHandler(userInputHandler);
+        menu.selectDifficulty();
         assertThat(menu.getDifficulty()).isEqualTo(3);
         verify(out).println("Выберите уровень сложности (1-легкий, 2-средний, 3-сложный) или нажмите Enter для случайного выбора:");
     }
@@ -273,18 +272,15 @@ public class MenuTest {
     @Test
     public void testSelectInvalidDifficultyInput() throws IOException {
         PrintStream out = mock(PrintStream.class);
-        InputStream input = new ByteArrayInputStream("7\n".getBytes());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
+        UserInputHandler userInputHandler = mock(UserInputHandler.class);
+        when(userInputHandler.getUserInput()).thenReturn("7");
         List<Category> categories = Arrays.asList(new Category("Фрукты"));
         List<Word> words = Arrays.asList(new Word("Яблоко", categories.get(0), "Сочный фрукт"));
         Menu menu = new Menu(categories, words, out, System.in);
-
-        menu.selectDifficulty(reader);
-
+        menu.setUserInputHandler(userInputHandler);
+        menu.selectDifficulty();
         int difficulty = menu.getDifficulty();
         assertThat(difficulty).isGreaterThanOrEqualTo(1);
-
         verify(out).println("Неверно выбран уровень сложности. Сложность была автоматически установлена на лёгкую.");
     }
 
@@ -292,18 +288,15 @@ public class MenuTest {
     @Test
     public void testSelectInvalidDifficultyInput2() throws IOException {
         PrintStream out = mock(PrintStream.class);
-        InputStream input = new ByteArrayInputStream("-1\n".getBytes());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
+        UserInputHandler userInputHandler = mock(UserInputHandler.class);
+        when(userInputHandler.getUserInput()).thenReturn("-1");
         List<Category> categories = Arrays.asList(new Category("Фрукты"));
         List<Word> words = Arrays.asList(new Word("Яблоко", categories.get(0), "Сочный фрукт"));
         Menu menu = new Menu(categories, words, out, System.in);
-
-        menu.selectDifficulty(reader);
-
+        menu.setUserInputHandler(userInputHandler);
+        menu.selectDifficulty();
         int difficulty = menu.getDifficulty();
         assertThat(difficulty).isGreaterThanOrEqualTo(1);
-
         verify(out).println("Неверно выбран уровень сложности. Сложность была автоматически установлена на лёгкую.");
     }
 
@@ -311,18 +304,15 @@ public class MenuTest {
     @Test
     public void testSelectEmptyDifficultyInput() throws IOException {
         PrintStream out = mock(PrintStream.class);
-        InputStream input = new ByteArrayInputStream("\n".getBytes());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
+        UserInputHandler userInputHandler = mock(UserInputHandler.class);
+        when(userInputHandler.getUserInput()).thenReturn("");
         List<Category> categories = Arrays.asList(new Category("Фрукты"));
         List<Word> words = Arrays.asList(new Word("Яблоко", categories.get(0), "Сочный фрукт"));
         Menu menu = new Menu(categories, words, out, System.in);
-
-        menu.selectDifficulty(reader);
-
+        menu.setUserInputHandler(userInputHandler);
+        menu.selectDifficulty();
         int difficulty = menu.getDifficulty();
         assertThat(difficulty).isGreaterThanOrEqualTo(1);
-
         verify(out).println("Неверный ввод. Сложность была автоматически установлена на лёгкую.");
     }
 
@@ -331,18 +321,15 @@ public class MenuTest {
     @Test
     public void testSelectInvalidDifficultyInput3() throws IOException {
         PrintStream out = mock(PrintStream.class);
-        InputStream input = new ByteArrayInputStream("ahhh-1\n".getBytes());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
+        UserInputHandler userInputHandler = mock(UserInputHandler.class);
+        when(userInputHandler.getUserInput()).thenReturn("dfgdsfg");
         List<Category> categories = Arrays.asList(new Category("Фрукты"));
         List<Word> words = Arrays.asList(new Word("Яблоко", categories.get(0), "Сочный фрукт"));
         Menu menu = new Menu(categories, words, out, System.in);
-
-        menu.selectDifficulty(reader);
-
+        menu.setUserInputHandler(userInputHandler);
+        menu.selectDifficulty();
         int difficulty = menu.getDifficulty();
         assertThat(difficulty).isGreaterThanOrEqualTo(1);
-
         verify(out).println("Неверный ввод. Сложность была автоматически установлена на лёгкую.");
     }
 
@@ -352,7 +339,7 @@ public class MenuTest {
         InputStream in = new ByteArrayInputStream("1\n".getBytes());
         Menu menu = new Menu(Arrays.asList(), Arrays.asList(), out, in);
 
-        menu.displayMenu();
+        menu.showMenu();
 
         verify(out).println("Нет доступных категорий или слов для игры. Игра завершена.");
     }
@@ -366,7 +353,7 @@ public class MenuTest {
         PlayGame mockPlayGame = mock(PlayGame.class);
         menu.setPlayGame(mockPlayGame);
         menu.setDifficulty(-1);
-        menu.displayMenu();
+        menu.showMenu();
         verify(out).println("Начинаем игру с уровнем сложности: " + menu.getDifficulty());
         verify(out).println(" и категорией: " + menu.getSelectedCategory().name());
         verify(mockPlayGame, never()).start(any());
@@ -389,7 +376,7 @@ public class MenuTest {
         PlayGame mockPlayGame = mock(PlayGame.class);
         menu.setPlayGame(mockPlayGame);
         menu.setDifficulty(-1);
-        menu.displayMenu();
+        menu.showMenu();
         verify(out).println("Начинаем игру с уровнем сложности: " + menu.getDifficulty());
         verify(out).println(" и категорией: " + menu.getSelectedCategory().name());
         verify(out).println("Нет доступных слов для выбранной категории. Игра завершена.");
@@ -413,7 +400,7 @@ public class MenuTest {
         PlayGame mockPlayGame = mock(PlayGame.class);
         menu.setPlayGame(mockPlayGame);
         menu.setDifficulty(-1);
-        menu.displayMenu();
+        menu.showMenu();
         verify(out).println("Нет доступных категорий или слов для игры. Игра завершена.");
         verify(mockPlayGame, never()).start(any());
     }
@@ -434,7 +421,7 @@ public class MenuTest {
         PlayGame mockPlayGame = mock(PlayGame.class);
         menu.setPlayGame(mockPlayGame);
         menu.setDifficulty(-1);
-        menu.displayMenu();
+        menu.showMenu();
         verify(out).println("Нет доступных категорий или слов для игры. Игра завершена.");
         verify(mockPlayGame, never()).start(any());
     }

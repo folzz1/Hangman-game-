@@ -1,4 +1,5 @@
 
+
 import org.example.Category;
 import org.example.GameLogic;
 import org.example.PlayGame;
@@ -9,6 +10,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyChar;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -40,7 +42,7 @@ public class PlayGameTest {
     public void testGameWin() throws Exception {
         Word mockWord = new Word("тест", new Category("Фрукты"), "Описание");
         GameLogic mockGameLogic = mock(GameLogic.class);
-        when(mockGameLogic.isGameOver()).thenReturn(true, false);
+        when(mockGameLogic.isGameNotOver()).thenReturn(true, false);
         when(mockGameLogic.isWin()).thenReturn(true);
         when(mockGameLogic.getWord()).thenReturn(mockWord);
 
@@ -61,7 +63,7 @@ public class PlayGameTest {
     public void testGameLose() throws Exception {
         Word mockWord = new Word("тест", new Category("Фрукты"), "Описание");
         GameLogic mockGameLogic = mock(GameLogic.class);
-        when(mockGameLogic.isGameOver()).thenReturn(true, false);
+        when(mockGameLogic.isGameNotOver()).thenReturn(true, false);
         when(mockGameLogic.isWin()).thenReturn(false);
         when(mockGameLogic.getWord()).thenReturn(mockWord);
 
@@ -83,7 +85,7 @@ public class PlayGameTest {
     public void testStartWithEmptyInput() throws Exception {
         Word mockWord = new Word("тест", new Category("Фрукты"), "Описание");
         GameLogic mockGameLogic = mock(GameLogic.class);
-        when(mockGameLogic.isGameOver()).thenReturn(true, false);
+        when(mockGameLogic.isGameNotOver()).thenReturn(true, false);
         when(mockGameLogic.isWin()).thenReturn(false);
         when(mockGameLogic.getWord()).thenReturn(mockWord);
 
@@ -94,7 +96,7 @@ public class PlayGameTest {
         playGame.setOut(out);
 
         playGame.start(in);
-        verify(mockGameLogic, never()).check(anyChar());
+        verify(mockGameLogic, never()).checkLetter(anyChar());
         verify(out).println("Вы проиграли!");
         verify(out).println("Загаданное слово: тест");
     }
@@ -103,7 +105,7 @@ public class PlayGameTest {
     public void testStartWithInvalidInput() throws Exception {
         Word mockWord = new Word("тест", new Category("Фрукты"), "Описание");
         GameLogic mockGameLogic = mock(GameLogic.class);
-        when(mockGameLogic.isGameOver()).thenReturn(true, false);
+        when(mockGameLogic.isGameNotOver()).thenReturn(true, false);
         when(mockGameLogic.isWin()).thenReturn(false);
         when(mockGameLogic.getWord()).thenReturn(mockWord);
         PlayGame playGame = new PlayGame(mockWord, 1);
@@ -113,7 +115,7 @@ public class PlayGameTest {
         playGame.setOut(out);
 
         playGame.start(in);
-        verify(mockGameLogic).check('!');
+        verify(mockGameLogic).checkLetter('!');
         verify(out).println("Вы проиграли!");
         verify(out).println("Загаданное слово: тест");
     }
